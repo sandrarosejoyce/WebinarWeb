@@ -1,20 +1,1011 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex, nofollow" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Webinar Landing Page Builder</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Load Telegram Web App SDK FIRST -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; }
+        .logo i { font-size: 24px; }
+        .logo span { color: #fcd34d; }
+        .user-info { background: rgba(255,255,255,0.15); padding: 4px 14px; border-radius: 20px; font-size: 13px; }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: #fff;
+            padding: 24px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .hero h2 { font-size: 24px; margin-bottom: 6px; }
+        .hero p { color: #64748b; font-size: 15px; }
+
+        /* ===== BUILDER ===== */
+        .builder {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .tab-btn i { margin-right: 6px; }
+        .tab-btn:hover { background: #e2e8f0; }
+        .tab-btn.active { color: #6366f1; background: #fff; border-bottom: 3px solid #6366f1; }
+        .tab-content { display: none; padding: 20px; animation: fade 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fade { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ===== FORM ELEMENTS ===== */
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .input-group label .required { color: #ef4444; }
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+            font-family: inherit;
+            background: #fff;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        .input-group textarea { resize: vertical; min-height: 60px; }
+
+        /* ===== DESIGN CONTROLS ===== */
+        .design-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .color-options, .bg-options, .btn-style-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.active { border-color: #1e293b; transform: scale(1.1); }
+        .bg-btn, .btn-style-btn {
+            padding: 6px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .bg-btn:hover, .btn-style-btn:hover { border-color: #6366f1; }
+        .bg-btn.active, .btn-style-btn.active { border-color: #6366f1; background: #eef2ff; color: #6366f1; }
+        .toggle-group {
+            display: flex;
+            gap: 4px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-btn.active { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); color: #6366f1; }
+
+        /* ===== PREVIEW ACTIONS ===== */
+        .preview-actions { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .preview-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            min-width: 100px;
+        }
+        .preview-btn.primary { background: #6366f1; color: #fff; }
+        .preview-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+        .preview-btn.secondary { background: #f1f5f9; color: #1e293b; }
+        .preview-btn.secondary:hover { background: #e2e8f0; }
+
+        .preview-container {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            border: 2px dashed #e2e8f0;
+        }
+        .preview-placeholder { text-align: center; padding: 40px 20px; color: #94a3b8; }
+        .preview-placeholder i { font-size: 48px; display: block; margin-bottom: 12px; }
+
+        /* ===== TEMPLATES ===== */
+        .templates {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .templates h3 { font-size: 16px; margin-bottom: 12px; }
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+        }
+        .template-btn {
+            padding: 8px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+        .template-btn:hover { border-color: #6366f1; background: #eef2ff; transform: translateY(-2px); }
+
+        /* ===== HISTORY ===== */
+        .history {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .history h3 { font-size: 16px; margin-bottom: 12px; }
+        .history-list { max-height: 200px; overflow-y: auto; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        .history-item .title { font-weight: 600; }
+        .history-item .date { color: #94a3b8; font-size: 12px; }
+        .history-item .actions button {
+            background: transparent;
+            border: none;
+            color: #6366f1;
+            cursor: pointer;
+            padding: 2px 8px;
+            font-size: 13px;
+        }
+        .history-item .actions .del { color: #ef4444; }
+        .empty-state { text-align: center; padding: 20px; color: #94a3b8; }
+        .clear-history {
+            margin-top: 12px;
+            padding: 6px 16px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .clear-history:hover { opacity: 0.8; }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity:0; transform:translate(-50%,20px); }
+            to { opacity:1; transform:translate(-50%,0); }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 16px 0 8px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .footer a { color: #6366f1; text-decoration: none; margin: 0 8px; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; gap: 6px; text-align: center; }
+            .design-grid { grid-template-columns: 1fr; }
+            .template-grid { grid-template-columns: repeat(2, 1fr); }
+            .preview-actions { flex-direction: column; }
+            .preview-btn { min-width: 100%; }
+            .tabs .tab-btn { font-size: 12px; padding: 10px 6px; }
+        }
+    </style>
 </head>
 <body>
-    <!-- All your HTML content (unchanged) -->
-    <!-- ... -->
 
-    <!-- Load your script AFTER the SDK -->
-    <script src="script.js"></script>
+    <!-- ============================================================ -->
+    <!-- TELEGRAM-ONLY CHECK: If not in Telegram, show block message   -->
+    <!-- ============================================================ -->
+    <div id="telegramBlock" style="display:none;"></div>
+
+    <script>
+        // ============================================================
+        // TELEGRAM-ONLY ENFORCEMENT – Reliable and safe
+        // ============================================================
+        (function() {
+            // 1) Check for Telegram Web App SDK
+            let isTelegram = !!(window.Telegram && window.Telegram.WebApp);
+
+            // 2) Fallback: user-agent detection
+            if (!isTelegram) {
+                const ua = navigator.userAgent || '';
+                if (ua.includes('Telegram') || ua.includes('TelegramDesktop') ||
+                    ua.includes('TelegramAndroid') || ua.includes('TelegramIOS')) {
+                    isTelegram = true;
+                }
+            }
+
+            // 3) If NOT Telegram, block the page entirely
+            if (!isTelegram) {
+                // Wipe out the page
+                document.documentElement.innerHTML = `
+                    <head><title>Telegram Web App Only</title>
+                    <style>
+                        * { margin:0; padding:0; box-sizing:border-box; }
+                        body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#f8fafc; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding:20px; }
+                        .blocked { text-align:center; max-width:420px; padding:40px 20px; }
+                        .blocked .icon { font-size:64px; color:#ef4444; margin-bottom:20px; }
+                        .blocked h1 { font-size:28px; color:#1e293b; margin-bottom:12px; }
+                        .blocked p { color:#64748b; font-size:16px; line-height:1.6; margin-bottom:16px; }
+                        .blocked .note { background:#e2e8f0; padding:12px 20px; border-radius:8px; font-size:14px; color:#475569; display:inline-block; }
+                        .blocked .note i { margin-right:8px; }
+                    </style></head>
+                    <body>
+                        <div class="blocked">
+                            <div class="icon">⚠️</div>
+                            <h1>Telegram Web App Only</h1>
+                            <p>This mini app works exclusively inside the Telegram app.</p>
+                            <p style="font-size:14px;color:#94a3b8;">Please open it from a Telegram bot.</p>
+                            <div class="note"><i>📱</i> Open Telegram and search for the bot</div>
+                        </div>
+                    </body>
+                `;
+                // Stop further execution
+                throw new Error('Not in Telegram Web App');
+            }
+
+            // If we are inside Telegram, show the page content
+            console.log('✅ Telegram Web App detected – loading builder');
+        })();
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- APP CONTENT – Only rendered if inside Telegram                -->
+    <!-- ============================================================ -->
+    <div class="container">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo"><i class="fas fa-presentation"></i> Webinar<span>Builder</span></div>
+            <div class="user-info" id="userName">Guest</div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <h2>🎯 Webinar Landing Page Builder</h2>
+            <p>Create high-converting registration pages in seconds.</p>
+        </section>
+
+        <!-- BUILDER -->
+        <section class="builder">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="content"><i class="fas fa-pen"></i> Content</button>
+                <button class="tab-btn" data-tab="design"><i class="fas fa-palette"></i> Design</button>
+                <button class="tab-btn" data-tab="preview"><i class="fas fa-eye"></i> Preview</button>
+            </div>
+
+            <!-- Content Tab -->
+            <div class="tab-content active" id="tab-content">
+                <div class="input-group">
+                    <label>Webinar Title <span class="required">*</span></label>
+                    <input type="text" id="webinarTitle" placeholder="e.g., Master Digital Marketing in 2025" />
+                </div>
+                <div class="input-group">
+                    <label>Subtitle</label>
+                    <input type="text" id="webinarSubtitle" placeholder="e.g., Learn from industry experts" />
+                </div>
+                <div class="input-group">
+                    <label>Speaker Name</label>
+                    <input type="text" id="speakerName" placeholder="e.g., John Doe" />
+                </div>
+                <div class="input-group">
+                    <label>Speaker Title</label>
+                    <input type="text" id="speakerTitle" placeholder="e.g., Marketing Expert, 10+ Years" />
+                </div>
+                <div class="input-group">
+                    <label>Date & Time</label>
+                    <input type="datetime-local" id="webinarDateTime" />
+                </div>
+                <div class="input-group">
+                    <label>Key Benefits (one per line)</label>
+                    <textarea id="keyBenefits" rows="4" placeholder="Learn actionable strategies&#10;Get exclusive templates&#10;Live Q&A"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>CTA Button Text</label>
+                    <input type="text" id="ctaText" value="Register Now" />
+                </div>
+                <div class="input-group">
+                    <label>CTA Button Link</label>
+                    <input type="url" id="ctaLink" placeholder="https://your-registration-link.com" />
+                </div>
+                <div class="input-group">
+                    <label>Additional Info</label>
+                    <textarea id="additionalInfo" rows="3" placeholder="Bonus: Free resources..."></textarea>
+                </div>
+            </div>
+
+            <!-- Design Tab -->
+            <div class="tab-content" id="tab-design">
+                <div class="design-grid">
+                    <div class="input-group">
+                        <label>Color Theme</label>
+                        <div class="color-options">
+                            <button class="color-btn active" data-color="#6366f1" style="background:#6366f1"></button>
+                            <button class="color-btn" data-color="#ef4444" style="background:#ef4444"></button>
+                            <button class="color-btn" data-color="#10b981" style="background:#10b981"></button>
+                            <button class="color-btn" data-color="#f59e0b" style="background:#f59e0b"></button>
+                            <button class="color-btn" data-color="#8b5cf6" style="background:#8b5cf6"></button>
+                            <button class="color-btn" data-color="#ec4899" style="background:#ec4899"></button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Background Style</label>
+                        <div class="bg-options">
+                            <button class="bg-btn active" data-bg="gradient">Gradient</button>
+                            <button class="bg-btn" data-bg="solid">Solid</button>
+                            <button class="bg-btn" data-bg="dark">Dark</button>
+                            <button class="bg-btn" data-bg="light">Light</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Button Style</label>
+                        <div class="btn-style-options">
+                            <button class="btn-style-btn active" data-style="rounded">Rounded</button>
+                            <button class="btn-style-btn" data-style="square">Square</button>
+                            <button class="btn-style-btn" data-style="pill">Pill</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Show Speaker Photo</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="showSpeakerPhoto">Yes</button>
+                            <button class="toggle-btn" id="hideSpeakerPhoto">No</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Show Countdown Timer</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="showTimer">Yes</button>
+                            <button class="toggle-btn" id="hideTimer">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Tab -->
+            <div class="tab-content" id="tab-preview">
+                <div class="preview-actions">
+                    <button class="preview-btn primary" id="generatePage"><i class="fas fa-magic"></i> Generate</button>
+                    <button class="preview-btn secondary" id="sharePage"><i class="fas fa-share"></i> Share</button>
+                    <button class="preview-btn secondary" id="copyHTML"><i class="fas fa-copy"></i> Copy HTML</button>
+                </div>
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-placeholder">
+                        <i class="fas fa-eye"></i>
+                        <p>Fill in the details and click "Generate" to preview your page.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEMPLATES -->
+        <section class="templates">
+            <h3><i class="fas fa-th-large"></i> Quick Templates</h3>
+            <div class="template-grid">
+                <button class="template-btn" data-template="marketing"><i class="fas fa-chart-line"></i> Marketing</button>
+                <button class="template-btn" data-template="tech"><i class="fas fa-code"></i> Tech</button>
+                <button class="template-btn" data-template="health"><i class="fas fa-heart"></i> Health</button>
+                <button class="template-btn" data-template="business"><i class="fas fa-briefcase"></i> Business</button>
+                <button class="template-btn" data-template="education"><i class="fas fa-graduation-cap"></i> Education</button>
+                <button class="template-btn" data-template="creative"><i class="fas fa-paint-brush"></i> Creative</button>
+            </div>
+        </section>
+
+        <!-- HISTORY -->
+        <section class="history">
+            <h3><i class="fas fa-history"></i> Recent Pages</h3>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">No pages created yet.</div>
+            </div>
+            <button class="clear-history" id="clearHistory">Clear History</button>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>&copy; 2026 WebinarBuilder &mdash; <a href="#" onclick="shareApp(); return false;"><i class="fas fa-share"></i> Share</a> <a href="#" onclick="feedback(); return false;"><i class="fas fa-comment"></i> Feedback</a></p>
+        </footer>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- APP JAVASCRIPT (only executed inside Telegram)                -->
+    <!-- ============================================================ -->
+    <script>
+        // -----------------------------------------------
+        // CONFIGURATION
+        // -----------------------------------------------
+        const BOT_USERNAME = 'YourBotUsername'; // Replace with your actual bot username
+
+        // -----------------------------------------------
+        // STATE
+        // -----------------------------------------------
+        let history = [];
+        let currentPageData = null;
+        let selectedColor = '#6366f1';
+        let selectedBg = 'gradient';
+        let selectedBtnStyle = 'rounded';
+        let showSpeakerPhoto = true;
+        let showTimer = true;
+
+        // -----------------------------------------------
+        // TELEGRAM WEB APP
+        // -----------------------------------------------
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Set user name
+        const user = tg.initDataUnsafe?.user;
+        if (user) document.getElementById('userName').textContent = user.first_name || 'User';
+
+        // -----------------------------------------------
+        // DOM REFS
+        // -----------------------------------------------
+        const $ = id => document.getElementById(id);
+        const qs = (sel, ctx) => (ctx || document).querySelector(sel);
+        const qsa = (sel, ctx) => (ctx || document).querySelectorAll(sel);
+
+        const webinarTitle = $('webinarTitle');
+        const webinarSubtitle = $('webinarSubtitle');
+        const speakerName = $('speakerName');
+        const speakerTitle = $('speakerTitle');
+        const webinarDateTime = $('webinarDateTime');
+        const keyBenefits = $('keyBenefits');
+        const ctaText = $('ctaText');
+        const ctaLink = $('ctaLink');
+        const additionalInfo = $('additionalInfo');
+        const previewContainer = $('previewContainer');
+        const historyList = $('historyList');
+
+        // -----------------------------------------------
+        // TAB SWITCHING
+        // -----------------------------------------------
+        qsa('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                qsa('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                qsa('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // -----------------------------------------------
+        // DESIGN CONTROLS
+        // -----------------------------------------------
+        qsa('.color-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                qsa('.color-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedColor = this.dataset.color;
+            });
+        });
+
+        qsa('.bg-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                qsa('.bg-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedBg = this.dataset.bg;
+            });
+        });
+
+        qsa('.btn-style-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                qsa('.btn-style-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedBtnStyle = this.dataset.style;
+            });
+        });
+
+        // Toggles
+        function setupToggle(showId, hideId, setter) {
+            const showBtn = $(showId);
+            const hideBtn = $(hideId);
+            showBtn.addEventListener('click', () => { showBtn.classList.add('active'); hideBtn.classList.remove('active'); setter(true); });
+            hideBtn.addEventListener('click', () => { hideBtn.classList.add('active'); showBtn.classList.remove('active'); setter(false); });
+        }
+        setupToggle('showSpeakerPhoto', 'hideSpeakerPhoto', v => showSpeakerPhoto = v);
+        setupToggle('showTimer', 'hideTimer', v => showTimer = v);
+
+        // -----------------------------------------------
+        // TEMPLATES
+        // -----------------------------------------------
+        const TEMPLATES = {
+            marketing: {
+                title: 'Master Digital Marketing in 2025',
+                subtitle: 'Learn the latest strategies from industry experts',
+                speaker: 'Sarah Johnson',
+                speakerTitle: 'Digital Marketing Expert, 15+ Years',
+                benefits: 'Create viral content\nBuild a powerful brand\nMaster social media algorithms\nGenerate leads on autopilot',
+                cta: 'Claim Your Free Spot',
+                extra: 'Bonus: Free marketing templates worth $497 included!'
+            },
+            tech: {
+                title: 'Build Your First AI App in 30 Minutes',
+                subtitle: 'No coding experience required!',
+                speaker: 'Alex Chen',
+                speakerTitle: 'AI Engineer, Former Google',
+                benefits: 'Understand AI fundamentals\nBuild a working prototype\nDeploy to the cloud\nMonetize your AI skills',
+                cta: 'Start Building Now',
+                extra: 'Includes free AI API credits worth $50!'
+            },
+            health: {
+                title: 'The Science of Healthy Living',
+                subtitle: 'Transform your life with evidence-based habits',
+                speaker: 'Dr. Emily Watson',
+                speakerTitle: 'Nutritionist & Wellness Coach',
+                benefits: 'Learn proper nutrition\nMaster stress management\nImprove sleep quality\nBuild sustainable habits',
+                cta: 'Start Your Journey',
+                extra: 'Free 7-day meal plan included!'
+            },
+            business: {
+                title: 'Scale Your Business to 7 Figures',
+                subtitle: 'Proven strategies from successful entrepreneurs',
+                speaker: 'Michael Roberts',
+                speakerTitle: 'Business Coach, 20+ Companies Scaled',
+                benefits: 'Optimize your sales funnel\nBuild a winning team\nMaster cash flow\nExit your business successfully',
+                cta: 'Register Now',
+                extra: 'Access to exclusive business templates!'
+            },
+            education: {
+                title: 'Modern Teaching Methods for the Digital Age',
+                subtitle: 'Engage and inspire your students like never before',
+                speaker: 'Dr. Lisa Park',
+                speakerTitle: 'Education Technology Specialist',
+                benefits: 'Use technology effectively\nCreate engaging lessons\nManage virtual classrooms\nAssess student progress',
+                cta: 'Enroll Now',
+                extra: 'Free teaching resources included!'
+            },
+            creative: {
+                title: 'Unlock Your Creative Potential',
+                subtitle: 'Discover your inner artist in 7 simple steps',
+                speaker: 'David Martinez',
+                speakerTitle: 'Creative Director, Award-winning Artist',
+                benefits: 'Overcome creative blocks\nDevelop your unique style\nBuild a creative portfolio\nMonetize your art',
+                cta: 'Start Creating',
+                extra: 'Free creative toolkit worth $200!'
+            }
+        };
+
+        qsa('.template-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const data = TEMPLATES[this.dataset.template];
+                if (!data) return;
+                // Fill content
+                webinarTitle.value = data.title;
+                webinarSubtitle.value = data.subtitle || '';
+                speakerName.value = data.speaker || '';
+                speakerTitle.value = data.speakerTitle || '';
+                keyBenefits.value = data.benefits || '';
+                ctaText.value = data.cta || 'Register Now';
+                additionalInfo.value = data.extra || '';
+                // Set default date/time (7 days from now)
+                const d = new Date();
+                d.setDate(d.getDate() + 7);
+                d.setHours(18,0,0,0);
+                webinarDateTime.value = d.toISOString().slice(0,16);
+                // Switch to content tab
+                qsa('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.tab-btn[data-tab="content"]').classList.add('active');
+                qsa('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('tab-content').classList.add('active');
+                toast('✅ Template loaded! Customize and generate.');
+            });
+        });
+
+        // -----------------------------------------------
+        // GENERATE PAGE
+        // -----------------------------------------------
+        $('generatePage').addEventListener('click', generatePage);
+
+        function generatePage() {
+            const title = webinarTitle.value.trim();
+            if (!title) { toast('⚠️ Please enter a webinar title!'); webinarTitle.focus(); return; }
+
+            const data = {
+                title,
+                subtitle: webinarSubtitle.value.trim(),
+                speaker: speakerName.value.trim() || 'Expert Speaker',
+                speakerTitle: speakerTitle.value.trim() || 'Industry Expert',
+                dateTime: webinarDateTime.value,
+                benefits: keyBenefits.value.split('\n').filter(b => b.trim()),
+                ctaText: ctaText.value.trim() || 'Register Now',
+                ctaLink: ctaLink.value.trim() || '#',
+                additionalInfo: additionalInfo.value.trim(),
+                color: selectedColor,
+                bg: selectedBg,
+                btnStyle: selectedBtnStyle,
+                showSpeakerPhoto,
+                showTimer
+            };
+            if (!data.benefits.length) data.benefits = ['Learn actionable strategies', 'Get exclusive resources'];
+
+            currentPageData = data;
+            renderPreview(data);
+            saveHistory(title);
+            // Switch to preview tab
+            qsa('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="preview"]').classList.add('active');
+            qsa('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-preview').classList.add('active');
+            toast('✅ Page generated!');
+        }
+
+        function renderPreview(data) {
+            const isDark = data.bg === 'dark';
+            const textColor = isDark ? 'color:#fff;' : 'color:#1e293b;';
+            const textLight = isDark ? 'color:#94a3b8;' : 'color:#64748b;';
+
+            // Format date
+            let dateStr = 'Date to be announced';
+            if (data.dateTime) {
+                const d = new Date(data.dateTime);
+                dateStr = d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                    + ' at ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+            }
+
+            const bgMap = {
+                gradient: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)',
+                solid: '#ffffff',
+                dark: '#1e293b',
+                light: '#f8fafc'
+            };
+            const bgStyle = bgMap[data.bg] || bgMap.gradient;
+
+            const btnRadius = { rounded:'8px', square:'0px', pill:'50px' }[data.btnStyle] || '8px';
+
+            let html = `
+                <div style="background:${bgStyle}; padding:24px; border-radius:12px; color:${isDark?'#fff':'#1e293b'};">
+                    <h2 style="font-size:24px; margin-bottom:6px;">${data.title}</h2>
+                    ${data.subtitle ? `<p style="color:${isDark?'#94a3b8':'#64748b'}; margin-bottom:16px;">${data.subtitle}</p>` : ''}
+            `;
+
+            if (data.showSpeakerPhoto) {
+                html += `
+                    <div style="display:flex; align-items:center; gap:12px; padding:12px; background:${isDark?'rgba(255,255,255,0.05)':'#f1f5f9'}; border-radius:8px; margin-bottom:16px;">
+                        <div style="width:48px; height:48px; border-radius:50%; background:${data.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px;">${data.speaker.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <div style="font-weight:600;">${data.speaker}</div>
+                            <div style="font-size:13px; color:${isDark?'#94a3b8':'#64748b'};">${data.speakerTitle}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `<div style="margin-bottom:12px;"><strong>Speaker:</strong> ${data.speaker} <span style="color:${isDark?'#94a3b8':'#64748b'}; font-size:13px;">${data.speakerTitle}</span></div>`;
+            }
+
+            if (data.showTimer) {
+                html += `
+                    <div style="display:flex; align-items:center; gap:8px; padding:12px; background:${data.color}20; border-radius:8px; margin:12px 0; color:${isDark?'#fff':data.color}; font-weight:600;">
+                        <span>📅</span> ${dateStr}
+                    </div>
+                `;
+            }
+
+            html += `
+                <div style="margin:16px 0;">
+                    <h4 style="margin-bottom:8px;">What you'll learn:</h4>
+                    <ul style="list-style:none; padding:0;">
+                        ${data.benefits.map(b => `<li style="padding:4px 0; display:flex; align-items:center; gap:8px;"><span>✅</span> ${b.trim()}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            if (data.additionalInfo) {
+                html += `
+                    <div style="padding:12px; background:${isDark?'rgba(255,255,255,0.05)':'#f1f5f9'}; border-radius:8px; margin:12px 0;">${data.additionalInfo}</div>
+                `;
+            }
+
+            html += `
+                    <a href="${data.ctaLink}" target="_blank" style="display:block; text-align:center; padding:14px; background:${data.color}; color:#fff; text-decoration:none; font-weight:700; border-radius:${btnRadius}; transition:0.2s;">${data.ctaText}</a>
+                    <div style="text-align:center; margin-top:12px; font-size:12px; color:${isDark?'#94a3b8':'#94a3b8'};">🚀 Powered by WebinarBuilder</div>
+                </div>
+            `;
+
+            previewContainer.innerHTML = html;
+        }
+
+        // -----------------------------------------------
+        // SHARE & COPY HTML
+        // -----------------------------------------------
+        $('sharePage').addEventListener('click', sharePage);
+        $('copyHTML').addEventListener('click', copyHTML);
+
+        function sharePage() {
+            if (!currentPageData) { toast('⚠️ Generate a page first!'); return; }
+            const text = `🎯 Join my webinar: ${currentPageData.title}\n\n${currentPageData.subtitle || ''}\n\nRegister: ${currentPageData.ctaLink}`;
+            if (tg.shareURL) tg.shareURL('https://t.me/share/url?url=' + encodeURIComponent(text));
+            else copyToClipboard(text), toast('📋 Copied! Share it anywhere.');
+        }
+
+        function copyHTML() {
+            if (!currentPageData) { toast('⚠️ Generate a page first!'); return; }
+            const html = generateFullHTML(currentPageData);
+            copyToClipboard(html);
+            toast('✅ HTML copied to clipboard!');
+        }
+
+        function generateFullHTML(data) {
+            const isDark = data.bg === 'dark';
+            const bgMap = {
+                gradient: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)',
+                solid: '#ffffff',
+                dark: '#1e293b',
+                light: '#f8fafc'
+            };
+            const bg = bgMap[data.bg] || bgMap.gradient;
+            const btnR = { rounded:'8px', square:'0px', pill:'50px' }[data.btnStyle] || '8px';
+
+            let dateStr = 'Date to be announced';
+            if (data.dateTime) {
+                const d = new Date(data.dateTime);
+                dateStr = d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+                    + ' at ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+            }
+
+            return `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${data.title}</title>
+        <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:${bg}; color:${isDark?'#fff':'#1e293b'}; }
+            .card { max-width:600px; width:100%; background:${isDark?'#1e293b':'#fff'}; padding:32px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+            h1 { font-size:28px; margin-bottom:6px; }
+            .sub { color:${isDark?'#94a3b8':'#64748b'}; margin-bottom:16px; }
+            .speaker { display:flex; align-items:center; gap:12px; padding:12px; background:${isDark?'rgba(255,255,255,0.05)':'#f1f5f9'}; border-radius:8px; margin-bottom:16px; }
+            .speaker .avatar { width:48px; height:48px; border-radius:50%; background:${data.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px; }
+            .speaker .name { font-weight:600; }
+            .speaker .title { font-size:13px; color:${isDark?'#94a3b8':'#64748b'}; }
+            .datetime { display:flex; align-items:center; gap:8px; padding:12px; background:${data.color}20; border-radius:8px; margin:12px 0; font-weight:600; color:${isDark?'#fff':data.color}; }
+            .benefits { margin:16px 0; }
+            .benefits ul { list-style:none; padding:0; }
+            .benefits li { padding:4px 0; display:flex; align-items:center; gap:8px; }
+            .extra { padding:12px; background:${isDark?'rgba(255,255,255,0.05)':'#f1f5f9'}; border-radius:8px; margin:12px 0; }
+            .cta { display:block; text-align:center; padding:14px; background:${data.color}; color:#fff; text-decoration:none; font-weight:700; border-radius:${btnR}; transition:0.2s; }
+            .cta:hover { opacity:0.9; transform:translateY(-2px); }
+            .footer { text-align:center; margin-top:12px; font-size:12px; color:${isDark?'#94a3b8':'#94a3b8'}; }
+        </style>
+        </head>
+        <body>
+        <div class="card">
+            <h1>${data.title}</h1>
+            ${data.subtitle ? `<p class="sub">${data.subtitle}</p>` : ''}
+            ${data.showSpeakerPhoto ? `
+            <div class="speaker">
+                <div class="avatar">${data.speaker.charAt(0).toUpperCase()}</div>
+                <div><div class="name">${data.speaker}</div><div class="title">${data.speakerTitle}</div></div>
+            </div>` : `<div style="margin-bottom:12px;"><strong>Speaker:</strong> ${data.speaker} <span style="color:${isDark?'#94a3b8':'#64748b'};font-size:13px;">${data.speakerTitle}</span></div>`}
+            ${data.showTimer ? `<div class="datetime">📅 ${dateStr}</div>` : ''}
+            <div class="benefits">
+                <h4>What you'll learn:</h4>
+                <ul>${data.benefits.map(b => `<li>✅ ${b.trim()}</li>`).join('')}</ul>
+            </div>
+            ${data.additionalInfo ? `<div class="extra">${data.additionalInfo}</div>` : ''}
+            <a href="${data.ctaLink}" target="_blank" class="cta">${data.ctaText}</a>
+            <div class="footer">🚀 Powered by WebinarBuilder</div>
+        </div>
+        </body>
+        </html>`;
+        }
+
+        // -----------------------------------------------
+        // HISTORY
+        // -----------------------------------------------
+        function saveHistory(title) {
+            const entry = { id: Date.now(), title, date: new Date().toLocaleString() };
+            history.unshift(entry);
+            if (history.length > 20) history.pop();
+            renderHistory();
+            try { localStorage.setItem('webinarHistory', JSON.stringify(history)); } catch(e) {}
+        }
+
+        function renderHistory() {
+            if (!history.length) {
+                historyList.innerHTML = '<div class="empty-state">No pages created yet.</div>';
+                return;
+            }
+            let html = '';
+            history.forEach(item => {
+                html += `
+                    <div class="history-item">
+                        <span class="title">${item.title}</span>
+                        <span class="date">${item.date}</span>
+                        <div class="actions">
+                            <button onclick="loadHistory(${item.id})">Load</button>
+                            <button class="del" onclick="deleteHistory(${item.id})">×</button>
+                        </div>
+                    </div>
+                `;
+            });
+            historyList.innerHTML = html;
+        }
+
+        window.loadHistory = function(id) {
+            const item = history.find(h => h.id === id);
+            if (!item) return;
+            // Find template by title
+            let found = false;
+            for (const [key, tpl] of Object.entries(TEMPLATES)) {
+                if (tpl.title === item.title) {
+                    webinarTitle.value = tpl.title;
+                    webinarSubtitle.value = tpl.subtitle || '';
+                    speakerName.value = tpl.speaker || '';
+                    speakerTitle.value = tpl.speakerTitle || '';
+                    keyBenefits.value = tpl.benefits || '';
+                    ctaText.value = tpl.cta || 'Register Now';
+                    additionalInfo.value = tpl.extra || '';
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) webinarTitle.value = item.title;
+            toast('✅ Loaded from history!');
+            qsa('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="content"]').classList.add('active');
+            qsa('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-content').classList.add('active');
+        };
+
+        window.deleteHistory = function(id) {
+            history = history.filter(h => h.id !== id);
+            renderHistory();
+            try { localStorage.setItem('webinarHistory', JSON.stringify(history)); } catch(e) {}
+        };
+
+        $('clearHistory').addEventListener('click', () => {
+            history = [];
+            renderHistory();
+            try { localStorage.setItem('webinarHistory', JSON.stringify(history)); } catch(e) {}
+            toast('🗑️ History cleared.');
+        });
+
+        // Load history from localStorage
+        try {
+            const saved = localStorage.getItem('webinarHistory');
+            if (saved) { history = JSON.parse(saved); renderHistory(); }
+        } catch(e) {}
+
+        // -----------------------------------------------
+        // UTILITY
+        // -----------------------------------------------
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text);
+            else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+        }
+
+        function toast(msg) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'toast';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
+        }
+
+        function shareApp() {
+            if (tg.shareURL) tg.shareURL('https://t.me/' + BOT_USERNAME);
+            else copyToClipboard('https://t.me/' + BOT_USERNAME), toast('📋 Bot link copied!');
+        }
+
+        function feedback() {
+            if (tg.shareURL) tg.shareURL('https://t.me/' + BOT_USERNAME + '?start=feedback');
+            else toast('📧 Send feedback to @' + BOT_USERNAME);
+        }
+
+        // -----------------------------------------------
+        // SET DEFAULT DATE (7 days from now)
+        // -----------------------------------------------
+        (function() {
+            const d = new Date();
+            d.setDate(d.getDate() + 7);
+            d.setHours(18,0,0,0);
+            webinarDateTime.value = d.toISOString().slice(0,16);
+        })();
+
+        console.log('🎯 Webinar Builder ready!');
+    </script>
+
 </body>
 </html>
